@@ -51,9 +51,6 @@ El material para el curso fue extraído y transformado de diversas fuentes.
 
 * *Unidad 4. Clasficadores basados en árboles:* Generalidades. Algoritmos ID4, C4.5 y CART. Partición múltiple y binaria, medidas de pureza de nodos. Crecimiento (growing) y podado (prunning) de árboles de decisión. Balance entre costo y complejidad del árbol. Aplicaciones en R (paquetes `tree`, `rpart` y `randomForest`).
 
-* *-Opcional- Unidad 5. Introducción al análisis de secuencias con el paquete `TraMineR` en R:* Estructuras de datos para el análisis de secuencia: inspección gráfica, análisis descriptivo (largo de secuencias, tiempo de estados, tasas de transición, etc.), medidas de disimilaridad entre sencuencias, identificación de secuencias relevantes, tipologías de secuencias (clustering, etc.).
-
-
 
 ## Bibliografía básica
 
