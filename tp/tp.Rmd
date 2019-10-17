@@ -1,0 +1,113 @@
+---
+title: "Consignas para el trabajo final"
+output: html_notebook
+---
+
+En este trabajo deberán construir un dataset a nivel radio censal del aglomerado Santiago-La Banda que les permita estimar algunas regresiones del precio de las viviendas.
+
+Para ello se utilizarán tres fuentes de datos:
+
+        1. Cartografía censal (2010)
+        2. Información proveniente de la API de Google Places
+
+```{r}
+library(tidyverse)
+library(sf)
+```
+
+```{r}
+places <- read_csv('../data_santiago/gplaces_sgo_la_banda.csv') %>%
+        st_as_sf(. ,coords=c("lat","lon")) %>%
+        mutate(types=str_conv(types, 'utf8')) %>%
+        separate(., types, sep=',', into=as.character(c(1:10))) %>%
+        select(metro:"1", geometry) %>%
+        rename(type="1") %>%
+        mutate(type=str_extract(type, boundary('word')))
+```
+
+```{r}
+food<-c('restaurant', 'grocery_or_supermarket','bar', 'food', 'bakery', 'cafe', 'meal_delivery', 'liquor_store', 'supermarket', 'meal_takeaway')
+
+commerce <- c('store', 'clothing_store', 'shopping_mall', 'shoe_store', 'convenience_store', 'electronics_store', 'hardware_store', 'book_store', 'car_rental', 'car_dealer', 'furniture_store', 'department_store', 'home_goods_store', 'jewelry_store')
+
+manufacture<-c('car_repair', 'car_wash', 'electrician', 'florist','locksmith', 'storage','painter')
+
+church<-c('church')
+
+services<-c('lawyer', 'travel_agency', 'hair_care', 'pet_store', 'moving_company', 'lodging','veterinary_care', 'gym', 'spa', 'laundry', 'beauty_salon')
+
+recreation<-c('amusement_park', 'aquarium', 'casino', 'rv_park', 'movie_theater', 
+              'night_club', 'park', 'stadium', 'movie_rental', 'campground', 'premise')
+
+security<-c('fire_station', 'police')
+
+government<-c('embassy', 'local_government_office', 'courthouse', 'post_office')
+
+finantial<-c('accounting', 'bank', 'real_estate_agency', 'insurance_agency', 'atm','general_contractor')
+
+education<-c('school', 'library', 'museum', 'university', 'art_gallery')
+
+health<-c('pharmacy', 'dentist', 'doctor', 'hospital','health', 'physiotherapist',
+          'funeral_home', 'cemetery')
+
+transport<-c('train_station', 'taxi_stand', 'light_rail_station','bus_station',
+             'airport', 'bicycle_store', 'parking', 'gas_station')
+
+```
+
+
+
+```{r}
+
+places <- places %>%
+        mutate(types = case_when(
+                type %in% commerce ~ 'commerce',
+                type %in% church ~ 'church',
+                type %in% education ~ 'education',
+                type %in% food ~ 'food',
+                type %in% government ~ 'government',
+                type %in% health ~ 'health',
+                type %in% finantial ~ 'finantial',
+                type %in% manufacture ~ 'manufacture',
+                type %in% recreation ~ 'recreation', 
+                type %in% security ~ 'security',
+                type %in% services ~ 'services',
+                type %in% transport ~ 'transport'
+        ))
+
+rm(list=setdiff(ls(), c("places", 'radios')))
+```
+
+```{r}
+radios <- st_read("../data_santiago/nbi_radio_santiago.geojson", stringsAsFactors = TRUE)
+```
+
+
+
+
+
+```{r}
+places<-places %>%
+        st_set_crs(st_crs(radios))
+
+places %>%
+        group_by(types) %>%
+        count() %>%
+        arrange(desc(n))
+```
+
+```{r}
+ggplot() + 
+        #geom_sf(data=radios)  +
+        geom_sf(data=places, aes(color=types, fill=types))
+ 
+```
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
