@@ -16,11 +16,11 @@ library(sf)
 ```
 
 ```{r}
-places <- read_csv('../data_santiago/gplaces_sgo_la_banda.csv') %>%
-        st_as_sf(. ,coords=c("lat","lon")) %>%
+places <- read_csv('../data_santiago/raw/gplaces_sgo_la_banda.csv') %>%
+        st_as_sf(. ,coords=c("lon","lat"), crs=4326) %>%
         mutate(types=str_conv(types, 'utf8')) %>%
         separate(., types, sep=',', into=as.character(c(1:10))) %>%
-        select(metro:"1", geometry) %>%
+        select(metro:"1") %>%
         rename(type="1") %>%
         mutate(type=str_extract(type, boundary('word')))
 ```
@@ -76,38 +76,76 @@ places <- places %>%
         ))
 
 rm(list=setdiff(ls(), c("places", 'radios')))
+
+
+st_write(places, '../data_santiago/gplaces_sgo_la_banda_ed.geojson',
+         delete_dsn = TRUE)
 ```
 
 ```{r}
-radios <- st_read("../data_santiago/nbi_radio_santiago.geojson", stringsAsFactors = TRUE)
+radios_eph <- st_read("../data_santiago/raw/radios_eph.geojson", stringsAsFactors = TRUE) %>%
+        filter(nomprov=='Santiago del Estero')
+
+rads<-unique(paste(radios_eph$codprov, radios_eph$coddepto,radios_eph$frac2010,radios_eph$radio2010, sep=""))
+
+rm(radios_eph)
 ```
+```{r}
+radios <- read_sf('../data_santiago/raw/radios_santiago.geojson') %>%
+        filter(link %in% rads)
 
-
-
+st_write(radios, '../data_santiago/radios_labanda.geojson', 
+         delete_dsn=TRUE)
+```
 
 
 ```{r}
-places<-places %>%
-        st_set_crs(st_crs(radios))
+radios <- read_sf('../data_santiago/radios_labanda.geojson')
 
-places %>%
-        group_by(types) %>%
-        count() %>%
-        arrange(desc(n))
+places<-read_sf('../data_santiago/gplaces_sgo_la_banda_ed.geojson')
 ```
+
+
 
 ```{r}
 ggplot() + 
-        #geom_sf(data=radios)  +
+        geom_sf(data=radios) +
         geom_sf(data=places, aes(color=types, fill=types))
- 
 ```
 
 
 
+## Consignas
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+        1. Generar un índice de "diversidad económica" de cada radio censal
+        1.1 Para eso deberán agregar para cada radio, cada tipo de lugar
+        2. Correlacionar dicha diversidad con variables sociodemográficas como NBI, NED; etc.
+        
+        
+```{r}
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+x<-places %>%
+        st_join(radios %>% select(link), join=st_within) %>%
+        as_tibble()
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```
+
+```{r}
+radios_places <- x %>%
+        group_by(link, types) %>%
+        
+        summarise(n_t=n()) %>%
+        spread(key = types, value = n_t) %>%
+        replace(., is.na(.),0) %>%
+        left_join(x=radios)
+```
+
+
+```{r}
+x<-radios_places %>% select(church:transport)
+st_geometry(x)<-NULL
+
+vegan::diversity(x, index='shannon')
+```
+
+vegan::divers
