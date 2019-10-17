@@ -1,14 +1,12 @@
 Docente: Germán Rosati
 
 # Presentación y objetivo del curso:
-Debido a su carácter de software libre y a la creciente comunidad de usuarios el lenguaje R se ha convertido en algo así como la lingua franca dentro del análisis estadístico. El presente seminario se propone realizar una introducción a algunos conceptos fundamentales de la programación estadística en R. A su vez, se hará énfasis en la implementación de análisis estadísticos básicos (descriptivos y regresiones) en R. A su vez, el curso presentará algunos elementos teóricos de la minería de datos/aprendizaje automático (balance sesgo-variancia, overfitting, etc.) y revisará algunos algoritmos para la estimación de árboles (ID4, C4.5, CART y random forest).
+Debido a su carácter de software libre y a la creciente comunidad de usuarios el lenguaje R se ha convertido en algo así como la lingua franca dentro del análisis estadístico. El presente seminario se propone realizar una introducción a algunos conceptos fundamentales de la programación estadística en R. A su vez, se hará énfasis en la implementación de análisis estadísticos básicos (descriptivos y regresiones) en R. .
 
 El curso se propone que los alumnos:
 
 - se familiaricen con aspectos relevantes de la programación estadística en lenguaje R y con el llamado `tidyverse` en particular
 - logren implementar e interpretar análisis estadísticos descriptivos y modelos de regresión en lenguaje R
-- incorporen algunos conceptos fundamentales del data mining/aprendizaje automático,
-- conozcan generalidades de algunos algoritmos para la generación de árboles de decisión (ID4, C4.5,CART y random forest) y su implementación en lenguaje R,
 - logren identificar situaciones de aplicación de este tipo de modelos a problemas de investigación básica y aplicada
 
 # Contenidos y materiales
@@ -18,7 +16,7 @@ El curso se propone que los alumnos:
 - [Radios censales CABA](data/radios_info_gral.geojson)
 - [Dataset Sistema Único de Atención CABA](data/sistema-unico-de-atencion-ciudadana-2016.zip)
 
-- [Radios censales Santiago-La Banda](data_santiago/radios_santiago.geojson)
+- [Radios censales Santiago-La Banda](data_santiago/radios_labanda.geojson)
 - [Google Places Santiago-La Banda](data_santiago/gplaces_sgo_la_banda_ed.geojson)
 
 ## __Clase 1.__ 
