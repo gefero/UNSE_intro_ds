@@ -11,7 +11,7 @@ El curso se propone que los alumnos:
 
 # Contenidos y materiales
 
-## __Datos para trabjar__ 
+## __Datos para trabajar__ 
 - [Dataset Delitos CABA](data/delitos.csv)
 - [Radios censales CABA](data/radios_info_gral.geojson)
 - [Dataset Sistema Único de Atención CABA](data/sistema-unico-de-atencion-ciudadana-2016.zip)
