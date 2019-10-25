@@ -1,0 +1,151 @@
+---
+title: "Consignas para el trabajo final"
+output: html_notebook
+---
+
+En este trabajo deberán construir un dataset a nivel radio censal del aglomerado Santiago-La Banda que les permita estimar algunas regresiones del precio de las viviendas.
+
+Para ello se utilizarán tres fuentes de datos:
+
+        1. Cartografía censal (2010)
+        2. Información proveniente de la API de Google Places
+
+```{r}
+library(tidyverse)
+library(sf)
+```
+
+```{r}
+places <- read_csv('../data_santiago/raw/gplaces_sgo_la_banda.csv') %>%
+        st_as_sf(. ,coords=c("lon","lat"), crs=4326) %>%
+        mutate(types=str_conv(types, 'utf8')) %>%
+        separate(., types, sep=',', into=as.character(c(1:10))) %>%
+        select(metro:"1") %>%
+        rename(type="1") %>%
+        mutate(type=str_extract(type, boundary('word')))
+```
+
+```{r}
+food<-c('restaurant', 'grocery_or_supermarket','bar', 'food', 'bakery', 'cafe', 'meal_delivery', 'liquor_store', 'supermarket', 'meal_takeaway')
+
+commerce <- c('store', 'clothing_store', 'shopping_mall', 'shoe_store', 'convenience_store', 'electronics_store', 'hardware_store', 'book_store', 'car_rental', 'car_dealer', 'furniture_store', 'department_store', 'home_goods_store', 'jewelry_store')
+
+manufacture<-c('car_repair', 'car_wash', 'electrician', 'florist','locksmith', 'storage','painter')
+
+church<-c('church')
+
+services<-c('lawyer', 'travel_agency', 'hair_care', 'pet_store', 'moving_company', 'lodging','veterinary_care', 'gym', 'spa', 'laundry', 'beauty_salon')
+
+recreation<-c('amusement_park', 'aquarium', 'casino', 'rv_park', 'movie_theater', 
+              'night_club', 'park', 'stadium', 'movie_rental', 'campground', 'premise')
+
+security<-c('fire_station', 'police')
+
+government<-c('embassy', 'local_government_office', 'courthouse', 'post_office')
+
+finantial<-c('accounting', 'bank', 'real_estate_agency', 'insurance_agency', 'atm','general_contractor')
+
+education<-c('school', 'library', 'museum', 'university', 'art_gallery')
+
+health<-c('pharmacy', 'dentist', 'doctor', 'hospital','health', 'physiotherapist',
+          'funeral_home', 'cemetery')
+
+transport<-c('train_station', 'taxi_stand', 'light_rail_station','bus_station',
+             'airport', 'bicycle_store', 'parking', 'gas_station')
+
+```
+
+
+
+```{r}
+
+places <- places %>%
+        mutate(types = case_when(
+                type %in% commerce ~ 'commerce',
+                type %in% church ~ 'church',
+                type %in% education ~ 'education',
+                type %in% food ~ 'food',
+                type %in% government ~ 'government',
+                type %in% health ~ 'health',
+                type %in% finantial ~ 'finantial',
+                type %in% manufacture ~ 'manufacture',
+                type %in% recreation ~ 'recreation', 
+                type %in% security ~ 'security',
+                type %in% services ~ 'services',
+                type %in% transport ~ 'transport'
+        ))
+
+rm(list=setdiff(ls(), c("places", 'radios')))
+
+
+st_write(places, '../data_santiago/gplaces_sgo_la_banda_ed.geojson',
+         delete_dsn = TRUE)
+```
+
+```{r}
+radios_eph <- st_read("../data_santiago/raw/radios_eph.geojson", stringsAsFactors = TRUE) %>%
+        filter(nomprov=='Santiago del Estero')
+
+rads<-unique(paste(radios_eph$codprov, radios_eph$coddepto,radios_eph$frac2010,radios_eph$radio2010, sep=""))
+
+rm(radios_eph)
+```
+```{r}
+radios <- read_sf('../data_santiago/raw/radios_santiago.geojson') %>%
+        filter(link %in% rads)
+
+st_write(radios, '../data_santiago/radios_labanda.geojson', 
+         delete_dsn=TRUE)
+```
+
+
+```{r}
+radios <- read_sf('../data_santiago/radios_labanda.geojson')
+
+places<-read_sf('../data_santiago/gplaces_sgo_la_banda_ed.geojson')
+```
+
+
+
+```{r}
+ggplot() + 
+        geom_sf(data=radios) +
+        geom_sf(data=places, aes(color=types, fill=types))
+```
+
+
+
+## Consignas
+
+        1. Generar un índice de "diversidad económica" de cada radio censal
+        1.1 Para eso deberán agregar para cada radio, cada tipo de lugar
+        2. Correlacionar dicha diversidad con variables sociodemográficas como NBI, NED; etc.
+        
+        
+```{r}
+
+x<-places %>%
+        st_join(radios %>% select(link), join=st_within) %>%
+        as_tibble()
+
+```
+
+```{r}
+radios_places <- x %>%
+        group_by(link, types) %>%
+        
+        summarise(n_t=n()) %>%
+        spread(key = types, value = n_t) %>%
+        replace(., is.na(.),0) %>%
+        left_join(x=radios)
+```
+
+
+```{r}
+x<-radios_places %>% select(church:transport)
+st_geometry(x)<-NULL
+
+vegan::diversity(x, index='shannon')
+```
+
+vegan::divers

@@ -44,6 +44,12 @@ Introducción a los problemas de regresión y clasificación en R:*  Implementac
 - [Explicación y práctica guiada - RCode](clase4/C4_Intro_glm.Rmd.R)
 
 
+## Consignas del Trabajo Final
+- [Consignas - pdf](tp/TP_final.pdf)
+- [Datos EPH](tp/Individual_t414.zip)
+- [Diseño de registro EPH](tp/EPH_registro.pdf)
+
+
 # Bibliografía básica
 
 + [James, G., Witten, D., Hastie, T., Tibshirani, R. (2013), _An Introduction to Statistical Learning with Applications in R_, Berlin: Springer.](http://www-bcf.usc.edu/~gareth/ISL/)
