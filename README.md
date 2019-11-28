@@ -48,6 +48,7 @@ Introducción a los problemas de regresión y clasificación en R:*  Implementac
 - [Consignas - pdf](tp/TP_final.pdf)
 - [Datos EPH](tp/Individual_t414.zip)
 - [Diseño de registro EPH](tp/EPH_registro.pdf)
+- [Soluciones TP](tp/TP_solutions.nb.html)
 
 
 # Bibliografía básica

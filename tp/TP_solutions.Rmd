@@ -1,0 +1,79 @@
+---
+title: "Soluciones TP Final"
+output: html_notebook
+---
+
+Cargamos las librerías y el dataset:
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+```{r warning=FALSE}
+df <- read_csv('../tp/Individual_t414.csv')
+
+
+#Acomodamos las etiquetas de la variable sexo y cat_ocup
+df <- df %>%
+        mutate(ch04 = case_when(ch04 != 'Mujer' ~ "Hombre",
+                                ch04 == 'Mujer' ~ "Mujer"),
+               cat_ocup = str_replace_all(cat_ocup,"[^[:graph:]]", " ")
+        )
+```
+
+## Consigna 1. 
+
+Calcular las tasas de actividad, empleo y desempleo según sexo, para jóvenes entre 18 y 35 años. El resultado final debe ser una tabla o dataframe que contenga los tres indicadores. ¿Qué puede observar en las distribuciones obtenidas?
+
+```{r}
+Tasas_ej_1 <- df %>% 
+        filter(ch06 >= 18  & ch06<= 35) %>% 
+        group_by(ch04) %>% 
+        summarise(Poblacion         = sum(pondera),
+                  Ocupados          = sum(pondera[estado == 'Ocupado']),
+                  Desocupados       = sum(pondera[estado == 'Desocupado']),
+                  PEA               = Ocupados + Desocupados,
+                  'Tasa Actividad'                  = PEA/Poblacion,
+                  'Tasa Empleo'                     = Ocupados/Poblacion,
+                  'Tasa Desocupacion'               = Desocupados/PEA) %>% 
+        select(-c(2:5))
+
+Tasas_ej_1
+```
+
+# Consigna 2
+Calcular el salario promedio por sexo, para dos grupos de edad: 18 a 35 años y 36 a 70 años. ¿Qué conclusión puede extraer de los datos obtenidos?
+
+```{r}
+Salarios_ej_2 <- df %>%
+        mutate(gr_edad=ifelse(ch06 >=18 & ch06<=35, '18-35', 
+                              ifelse(ch06 >= 36 & ch06<=70,'36-70',NA))) %>%
+        filter(estado=='Ocupado' & cat_ocup=='Obrero o empleado') %>%
+        group_by(gr_edad, ch04) %>%
+        summarise(n=n(),
+                  p21=mean(p21)) %>%
+        drop_na()
+
+Salarios_ej_2
+```
+
+# Consigna 3
+Graficar la distribución del ingreso por ocupación principal según categoría ocupacional. Generar un histograma y un boxplot. Haga una breve interpretación de los resultados.
+        
+```{r}
+df %>%
+        filter(estado=='Ocupado' & p21 >0) %>%
+        select(cat_ocup, p21) %>%
+        ggplot() +
+                geom_histogram(aes(x=p21), bins=50) +
+                facet_wrap(~cat_ocup)
+```
+
+```{r}
+df %>%
+        filter(estado=='Ocupado' & (p21 > 0 & p21 < 20000)) %>%
+        ggplot() +
+        geom_boxplot(aes(x=cat_ocup, fill=cat_ocup, y=p21))
+
+```
+
