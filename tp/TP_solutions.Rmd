@@ -9,7 +9,7 @@ Cargamos las librerías y el dataset:
 library(tidyverse)
 ```
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df <- read_csv('../tp/Individual_t414.csv')
 
 
